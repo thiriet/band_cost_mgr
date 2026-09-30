@@ -56,3 +56,16 @@ $$\text{Solde}(M) = \sum (\text{Montants avancés par } M) - \sum (\text{Parts d
 ### 4.3 Remboursements Flexibles & Asynchrones
 - La Caisse Commune peut rembourser un membre partiellement ou totalement selon ses disponibilités de trésorerie (ex: un membre a avancé 400€, la caisse dispose de 150€ $\rightarrow$ remboursement partiel de 150€).
 - Ce remboursement n'impose pas d'équilibrer les dettes des autres membres au même moment.
+
+### 4.4 Règle de Trésorerie Non-Négative (Solde Caisse $\ge$ 0)
+- **Le solde de la Caisse Commune ne peut jamais être négatif.**
+- Tout décaissement direct depuis la Caisse (`type = REMBOURSEMENT` ou `type = DEPENSE` payée par la caisse avec `id_payeur = NULL`) qui entraînerait un solde de caisse strictement inférieur à 0 est **bloqué par l'API** (erreur de validation HTTP 400).
+- L'interface Web et le Bot Telegram signalent l'insuffisance de provision et empêchent la validation.
+
+### 4.5 Gouvernance Plate & Traçabilité Intégrale
+- **En Phase 1, tous les membres ont les mêmes droits** (pas de profil Admin ou Trésorier différencié).
+- **Consignation et audit systématiques :** Chaque opération financière enregistre obligatoirement :
+  - L'auteur de la saisie (`id_auteur`).
+  - Le canal d'origine (`source` : `TELEGRAM` ou `WEB`).
+  - L'horodatage exact (`created_at`).
+  - Les détails descriptifs du motif de la transaction.

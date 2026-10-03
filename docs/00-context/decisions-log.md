@@ -32,3 +32,12 @@ Ce document consigne les arbitrages fonctionnels et produit validés pour le cad
   * Tous les membres authentifiés ont les mêmes droits (saisie, consultation, déclenchement de remboursement).
   * **Traçabilité stricte :** Chaque transaction enregistre systématiquement son auteur (`id_auteur` / `created_by`), son horodatage précis (`created_at`) et son canal d'origine (`source` : `TELEGRAM` ou `WEB`).
 * **Impact :** Simplifie la gestion des droits tout en assurant un audit log complet de chaque flux.
+
+### DEC-004 : Initialisation & Provisioning des Membres (Script de Seed)
+* **Statut :** Validé
+* **Date :** 2026-10-03
+* **Décision :** Aucun formulaire ni flux d'inscription public (register/onboarding) n'est développé en Phase 1.
+* **Comportement :**
+  * Les membres du groupe sont initialisés directement en base de données via un script de seed SQL / commande CLI (`docs/02-architecture/seed.sql`).
+  * Le script renseigne pour chaque musicien : nom, email, mot de passe hashé (bcrypt/argon2) et identifiant Telegram unique (`telegram_user_id`).
+* **Impact :** Élimine le développement des flux d'invitation, de validation d'email et de réinitialisation de mot de passe pour le MVP, tout en sécurisant l'accès aux seuls membres du groupe.

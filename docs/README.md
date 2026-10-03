@@ -24,3 +24,9 @@ Architecture logicielle, modèle de données et contrats d'interface :
 ### [03-operations/](file:///Users/raphaelthiriet/Documents/travail/cost-manager/docs/03-operations/)
 Guides de déploiement, configuration et exploitation :
 - [deployment-gcp-serverless.md](file:///Users/raphaelthiriet/Documents/travail/cost-manager/docs/03-operations/deployment-gcp-serverless.md) : Guide d'architecture et de déploiement Serverless 100% gratuit (Cloud Run, Firebase Hosting, Neon PostgreSQL).
+
+## 🚀 État d'avancement (Octobre 2026)
+- ✅ **Phase 1 : Cadrage & Architecture** (Specs, ADR, Modèle relationnel).
+- ✅ **Phase 2 : Infrastructure Serverless** (GCP Cloud Run + Neon/Supabase PostgreSQL).
+- ✅ **Phase 3 : Backend Core (Modules A & B)** : Authentification JWT, Moteur financier (Règle Caisse Commune non-négative) audité et protégé contre la N+1 Query.
+- 🏗️ **Phase 4 : Bot Telegram & NLP (Module C)** : *En cours d'implémentation (Gestion Idempotence via update_id, Parsing Gemini).*

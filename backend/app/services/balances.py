@@ -1,5 +1,5 @@
 from decimal import Decimal
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from app.db.models import Transaction, TransactionParticipant, TypeTransactionEnum, Membre
 
@@ -42,8 +42,8 @@ def calculate_all_balances(db: Session) -> dict:
             membres_balances[id_payeur] += total
             
     # 2. Soustraire les parts de dépenses (Dettes)
-    # Il faut requêter chaque transaction et diviser le montant par le nombre de participants
-    depenses = db.query(Transaction).filter(
+    # Préchargement (joinedload) des participants pour éviter le problème de N+1 Queries
+    depenses = db.query(Transaction).options(joinedload(Transaction.participants)).filter(
         Transaction.type_transaction == TypeTransactionEnum.DEPENSE
     ).all()
     

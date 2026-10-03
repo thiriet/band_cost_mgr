@@ -54,3 +54,18 @@ class TransactionParticipant(Base):
 
     transaction = relationship("Transaction", back_populates="participants")
     membre = relationship("Membre")
+
+class TelegramUpdate(Base):
+    __tablename__ = "telegram_updates"
+    
+    update_id = Column(Integer, primary_key=True, index=True)
+    status = Column(String(20), default="PROCESSING")
+    created_at = Column(DateTime, server_default=func.now())
+
+class PendingTransaction(Base):
+    __tablename__ = "pending_transactions"
+    
+    id = Column(String(36), primary_key=True, index=True) # UUID string
+    payload = Column(Text, nullable=False) # JSON sérialisé
+    telegram_user_id = Column(String(100), nullable=False)
+    created_at = Column(DateTime, server_default=func.now())

@@ -22,4 +22,5 @@ Architecture logicielle, modèle de données et contrats d'interface :
 - [adr/](file:///Users/raphaelthiriet/Documents/travail/cost-manager/docs/02-architecture/adr/) : Registre des décisions d'architecture (ex: [ADR-001 Caisse Commune](file:///Users/raphaelthiriet/Documents/travail/cost-manager/docs/02-architecture/adr/ADR-001-caisse-commune-modele.md)).
 
 ### [03-operations/](file:///Users/raphaelthiriet/Documents/travail/cost-manager/docs/03-operations/)
-Guides de déploiement, configuration et exploitation (Docker, VPS, reverse proxy, variables d'environnement).
+Guides de déploiement, configuration et exploitation :
+- [deployment-gcp-serverless.md](file:///Users/raphaelthiriet/Documents/travail/cost-manager/docs/03-operations/deployment-gcp-serverless.md) : Guide d'architecture et de déploiement Serverless 100% gratuit (Cloud Run, Firebase Hosting, Neon PostgreSQL).

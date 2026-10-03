@@ -34,10 +34,10 @@ Cet Epic fournit le socle technique, la persistance relationnelle et l'API REST 
 **Then** l'API répond avec un code HTTP `401 Unauthorized`  
 **And** un message d'erreur explicite sans divulguer si l'email existe.
 
-#### AC3 : Accès Bot Telegram via API Key
-**Given** le Bot Telegram envoyant une requête API protégée  
-**When** l'en-tête `X-Bot-Api-Key` correspond à la clé statique configurée dans l'environnement serveur  
-**Then** l'API autorise l'accès et traite la requête.
+#### AC3 : Accès Webhook Telegram via Secret Token
+**Given** le serveur recevant une requête webhook depuis les serveurs de Telegram  
+**When** l'en-tête `X-Telegram-Bot-Api-Secret-Token` correspond à la clé secrète configurée dans l'environnement du serveur  
+**Then** l'API autorise l'accès et traite la requête webhook.
 
 #### AC4 : Rejet d'accès non autorisé
 **Given** une requête vers `/api/*` sans token JWT valide ni clé API valide  

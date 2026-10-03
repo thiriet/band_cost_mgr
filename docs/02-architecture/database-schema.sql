@@ -26,7 +26,7 @@ CREATE TABLE transactions (
     source ENUM('TELEGRAM', 'WEB') NOT NULL, -- Canal d'origine de la saisie
     date_transaction DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_payeur) REFERENCES membres(id) ON DELETE SET NULL,
+    FOREIGN KEY (id_payeur) REFERENCES membres(id) ON DELETE RESTRICT,
     FOREIGN KEY (id_auteur) REFERENCES membres(id) ON DELETE RESTRICT
 );
 

@@ -6,9 +6,12 @@ class Settings(BaseSettings):
     PROJECT_VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     
-    # Configuration PostgreSQL (Ex: Neon.tech)
-    # Exemple: postgresql://user:password@hostname:5432/dbname?sslmode=require
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./hongre_local.db")
+    # Configuration PostgreSQL stricte (pas de SQLite en prod/dev)
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql+psycopg://hongre_user:hongre_pass@localhost:5432/hongre_db")
+    
+    # Liste explicite des origines CORS (ex: Vue.js en dev, Firebase en prod)
+    # Remplacer 'localhost:5173' par l'URL de prod plus tard
+    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:8080"]
     
     # Secrets & Sécurité
     JWT_SECRET: str = os.getenv("JWT_SECRET", "super-secret-key-change-me-in-production")

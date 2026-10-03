@@ -25,9 +25,8 @@ def read_root():
 def health_check():
     return {"status": "healthy"}
 
-# TODO: Importer et inclure les routeurs API
-# from app.api.v1.api import api_router
-# app.include_router(api_router, prefix=settings.API_V1_STR)
+from app.api.api import api_router
+app.include_router(api_router, prefix=settings.API_V1_STR)
 
 if __name__ == "__main__":
     import uvicorn

@@ -7,9 +7,9 @@ from app.schemas.gemini import ExtractedTransaction
 # Initialiser le client (utilise la variable GEMINI_API_KEY par défaut ou via params)
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-def parse_expense_text(text: str, membres_dict: dict[str, int]) -> ExtractedTransaction:
+async def parse_expense_text(text: str, membres_dict: dict[str, int]) -> ExtractedTransaction:
     """
-    Interroge Gemini 1.5 pour extraire les données financières du texte.
+    Interroge Gemini 1.5 pour extraire les données financières du texte (Version Asynchrone).
     membres_dict est un dict de { "Prénom": ID_technique }.
     """
     
@@ -28,7 +28,7 @@ def parse_expense_text(text: str, membres_dict: dict[str, int]) -> ExtractedTran
     Texte à analyser : "{text}"
     """
     
-    response = client.models.generate_content(
+    response = await client.aio.models.generate_content(
         model='gemini-1.5-flash',
         contents=prompt,
         config=types.GenerateContentConfig(

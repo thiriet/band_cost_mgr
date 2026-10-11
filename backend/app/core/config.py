@@ -11,7 +11,12 @@ class Settings(BaseSettings):
     
     # Liste explicite des origines CORS (ex: Vue.js en dev, Firebase en prod)
     # Remplacer 'localhost:5173' par l'URL de prod plus tard
-    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:8080"]
+    BACKEND_CORS_ORIGINS: list[str] = [
+        "http://localhost:5173",
+        "http://localhost:8080",
+        "https://hongre-app.web.app",
+        "https://hongre-app.firebaseapp.com",
+    ]
     
     # Secrets & Sécurité
     JWT_SECRET: str = os.getenv("JWT_SECRET", "super-secret-key-change-me-in-production")

@@ -4,6 +4,8 @@ import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
 import api from '../services/api';
 
+import AppNavbar from '../components/AppNavbar.vue';
+
 const authStore = useAuthStore();
 const router = useRouter();
 
@@ -29,27 +31,14 @@ onMounted(() => {
   fetchBalances();
 });
 
-const handleLogout = () => {
-  authStore.logout();
-  router.push('/login');
+const handleNewRemboursement = () => {
+  alert('La saisie de remboursement sera disponible prochainement !');
 };
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-100">
-    <nav class="bg-white shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex items-center">
-            <h1 class="text-xl font-bold text-gray-900">Hongre - Trésorerie</h1>
-          </div>
-          <div class="flex items-center">
-            <span class="mr-4 text-sm text-gray-600" v-if="authStore.user">Connecté en tant que {{ authStore.user.nom }}</span>
-            <button @click="handleLogout" class="text-sm text-red-600 hover:text-red-800">Déconnexion</button>
-          </div>
-        </div>
-      </div>
-    </nav>
+    <AppNavbar />
 
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       
@@ -57,7 +46,7 @@ const handleLogout = () => {
       <div class="flex justify-between items-center mb-6 px-4 sm:px-0">
         <h2 class="text-2xl font-bold text-gray-900">Tableau de bord</h2>
         <button class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 shadow-sm text-sm font-medium"
-                onclick="alert('La modale de saisie de Remboursement sera développée prochainement !')">
+                @click="handleNewRemboursement">
           + Saisir un Remboursement
         </button>
       </div>

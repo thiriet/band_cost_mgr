@@ -16,7 +16,9 @@ async def send_message(chat_id: int, text: str, reply_markup: Optional[dict] = N
         payload["reply_markup"] = reply_markup
         
     async with httpx.AsyncClient() as client:
-        await client.post(url, json=payload)
+        resp = await client.post(url, json=payload)
+        if resp.status_code != 200:
+            print(f"[TELEGRAM ERROR] send_message failed ({resp.status_code}): {resp.text}")
 
 async def answer_callback_query(callback_query_id: str, text: str = "", show_alert: bool = False) -> None:
     """Répond à un clic sur un bouton (obligatoire pour enlever l'icône de chargement sur le client)."""

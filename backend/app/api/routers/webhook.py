@@ -176,7 +176,8 @@ async def telegram_webhook(
         elif "callback_query" in payload:
             await process_callback_query(payload["callback_query"], db)
     except Exception as e:
-        print(f"Error processing update: {e}")
-        pass
+        import traceback
+        print(f"[WEBHOOK ERROR] Error processing update: {e}")
+        traceback.print_exc()
         
     return {"ok": True}

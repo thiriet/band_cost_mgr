@@ -53,3 +53,6 @@ dist/
 *.db
 logs/
 *.log
+
+# Firebase
+.firebase/

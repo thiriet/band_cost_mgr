@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from google import genai
 from google.genai import types
 from app.core.config import settings
@@ -13,9 +14,13 @@ async def parse_expense_text(text: str, membres_dict: dict[str, int]) -> Extract
     membres_dict est un dict de { "Prénom": ID_technique }.
     """
     
+    today_str = date.today().isoformat()
+    
     prompt = f"""
     Tu es l'assistant financier d'un groupe de musique.
     Ton rôle est d'analyser le message suivant et d'en extraire les informations de dépense.
+    
+    Nous sommes aujourd'hui le {today_str}.
     
     Voici le dictionnaire des membres actuels du groupe (Nom -> ID) :
     {json.dumps(membres_dict, ensure_ascii=False)}
@@ -23,7 +28,8 @@ async def parse_expense_text(text: str, membres_dict: dict[str, int]) -> Extract
     Règles :
     - Si le message dit "J'ai payé pour tout le monde" ou ne précise pas de bénéficiaires, mets les IDs de TOUS les membres.
     - Si le message précise des bénéficiaires (ex: "pour moi et Nico"), mets uniquement les IDs correspondants.
-    - Si la personne parle d'elle-même ("moi", "j'ai"), tu dois identifier qui parle en fonction du contexte que je te fournis plus tard ou assumer que l'auteur est implicitement inclus.
+    - Si la personne parle d'elle-même ("moi", "j'ai"), tu dois assumer que l'auteur est inclus.
+    - Pour la date : si une date relative ou absolue est mentionnée (ex: "hier", "le 10/09", "samedi"), calcule la date exacte au format YYYY-MM-DD par rapport à aujourd'hui ({today_str}). Sinon renvoie null.
     
     Texte à analyser : "{text}"
     """

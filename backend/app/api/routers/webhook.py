@@ -41,12 +41,15 @@ async def process_text_message(message: dict, db: Session):
     # Créer la pending transaction
     pending_id = str(uuid.uuid4())
     
+    # Date réelle de la dépense si précisée (ex: "hier", "le 10/09"), sinon aujourd'hui
+    txn_date = extracted.date_transaction or date.today().isoformat()
+    
     txn_data = {
         "type_transaction": TypeTransactionEnum.DEPENSE.value,
         "categorie": extracted.categorie,
         "details": text,
         "montant": extracted.montant,
-        "date_transaction": date.today().isoformat(),
+        "date_transaction": txn_date,
         "id_payeur": auteur.id,
         "participants": extracted.participants_ids,
         "source": SourceEnum.TELEGRAM.value
@@ -65,6 +68,7 @@ async def process_text_message(message: dict, db: Session):
     
     summary = f"<b>Nouvelle Dépense :</b>\n"
     summary += f"💰 Montant : {extracted.montant} €\n"
+    summary += f"📅 Date : {txn_date}\n"
     summary += f"🏷️ Catégorie : {extracted.categorie}\n"
     summary += f"👥 Pour : {', '.join(part_names)}\n\n"
     summary += f"Confirmez-vous ?"

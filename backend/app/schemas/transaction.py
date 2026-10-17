@@ -38,6 +38,11 @@ class TransactionResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class MembreBalance(BaseModel):
+    id_membre: int
+    nom: str
+    solde: Decimal
+
 class BalancesResponse(BaseModel):
     caisse_commune: Decimal
-    membres: dict[int, Decimal] # ID du membre -> Solde (positif=créance, négatif=dette)
+    membres: List[MembreBalance]

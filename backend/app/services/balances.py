@@ -65,7 +65,16 @@ def calculate_all_balances(db: Session) -> dict:
         if id_membre in membres_balances:
             membres_balances[id_membre] -= total
             
+    membres_list = [
+        {
+            "id_membre": m.id,
+            "nom": m.nom,
+            "solde": membres_balances.get(m.id, Decimal(0))
+        }
+        for m in membres
+    ]
+    
     return {
         "caisse_commune": caisse_balance,
-        "membres": membres_balances
+        "membres": membres_list
     }

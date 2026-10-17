@@ -12,6 +12,7 @@ from app.schemas.membre import Membre as MembreSchema
 
 router = APIRouter()
 
+@router.post("/token", response_model=Token)
 @router.post("/login", response_model=Token)
 def login_access_token(
     db: Session = Depends(deps.get_db),

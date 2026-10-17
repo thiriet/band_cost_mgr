@@ -75,23 +75,42 @@ def get_balances(
     """
     return balances.calculate_all_balances(db)
 
+from sqlalchemy.orm import Session, joinedload
+
 @router.get("/", response_model=List[TransactionResponse])
 def get_transactions(
     skip: int = 0,
-    limit: int = 50,
+    limit: int = 100,
     db: Session = Depends(deps.get_db),
     current_user: Membre = Depends(deps.get_current_active_user)
 ) -> Any:
     """
-    Historique paginé de toutes les transactions.
+    Historique paginé de toutes les transactions avec détails des membres.
     """
-    txs = db.query(Transaction).order_by(Transaction.date_transaction.desc(), Transaction.created_at.desc()).offset(skip).limit(limit).all()
+    txs = db.query(Transaction).options(
+        joinedload(Transaction.payeur),
+        joinedload(Transaction.auteur),
+        joinedload(Transaction.participants).joinedload(TransactionParticipant.membre)
+    ).order_by(Transaction.date_transaction.desc(), Transaction.created_at.desc()).offset(skip).limit(limit).all()
     
-    # Formatage
     result = []
     for t in txs:
-        t_dict = t.__dict__.copy()
-        t_dict["participants"] = [p.id_membre for p in t.participants]
+        t_dict = {
+            "id": t.id,
+            "type_transaction": t.type_transaction,
+            "categorie": t.categorie,
+            "details": t.details,
+            "montant": t.montant,
+            "date_transaction": t.date_transaction,
+            "id_payeur": t.id_payeur,
+            "nom_payeur": t.payeur.nom if t.payeur else "Caisse Commune",
+            "id_auteur": t.id_auteur,
+            "nom_auteur": t.auteur.nom if t.auteur else None,
+            "source": t.source,
+            "created_at": t.created_at,
+            "participants": [p.id_membre for p in t.participants],
+            "participants_noms": [p.membre.nom for p in t.participants if p.membre]
+        }
         result.append(t_dict)
         
     return result

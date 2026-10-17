@@ -30,10 +30,13 @@ class TransactionResponse(BaseModel):
     montant: Decimal
     date_transaction: date
     id_payeur: Optional[int]
+    nom_payeur: Optional[str] = None
     id_auteur: int
+    nom_auteur: Optional[str] = None
     source: SourceEnum
     created_at: datetime
     participants: List[int]
+    participants_noms: List[str] = Field(default_factory=list)
 
     class Config:
         from_attributes = True

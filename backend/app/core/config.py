@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     
     # Gemini
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    
+    # OpenRouter / Nemotron
+    OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
+    OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "nvidia/llama-3.1-nemotron-70b-instruct")
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8', case_sensitive=True)
 

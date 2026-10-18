@@ -31,7 +31,10 @@ async def process_text_message(message: dict, db: Session):
     try:
         extracted = await nlp.parse_expense_text(text, membres_dict)
     except Exception as e:
-        await telegram.send_message(chat_id, "🤖 Je n'ai pas réussi à comprendre la dépense. Réessayez de formuler différemment.")
+        import traceback
+        print(f"[NLP EXCEPTION] {e}")
+        traceback.print_exc()
+        await telegram.send_message(chat_id, f"⚠️ <b>Erreur d'analyse :</b> {str(e)}")
         return
         
     if extracted.is_remboursement:

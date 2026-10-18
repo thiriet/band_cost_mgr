@@ -50,15 +50,18 @@ Tu DOIS répondre UNIQUEMENT par un objet JSON valide respectant strictement ce 
 
     async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.post(OPENROUTER_API_URL, headers=headers, json=payload)
-        response.raise_for_status()
+        if response.status_code != 200:
+            print(f"[OPENROUTER ERROR] {response.status_code}: {response.text}")
+            raise ValueError(f"OpenRouter ({response.status_code}): {response.text}")
+            
         data = response.json()
         raw_content = data["choices"][0]["message"]["content"]
 
-    # Nettoyage d'éventuels backticks markdown
-    cleaned = re.sub(r"^```(?:json)?\s*", "", raw_content.strip(), flags=re.MULTILINE)
-    cleaned = re.sub(r"\s*```$", "", cleaned.strip(), flags=re.MULTILINE)
+    # Extraction ciblée du bloc JSON {...}
+    match = re.search(r"(\{.*\})", raw_content, flags=re.DOTALL)
+    json_str = match.group(1) if match else raw_content.strip()
     
-    return ExtractedTransaction.model_validate_json(cleaned)
+    return ExtractedTransaction.model_validate_json(json_str)
 
 async def _parse_with_gemini(text: str, membres_dict: dict[str, int], today_str: str) -> ExtractedTransaction:
     """Appel de secours vers Gemini si la clé OpenRouter n'est pas configurée."""

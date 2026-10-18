@@ -20,7 +20,7 @@ Règles :
 - Si le message dit "J'ai payé pour tout le monde" ou ne précise pas de bénéficiaires, mets les IDs de TOUS les membres.
 - Si le message précise des bénéficiaires (ex: "pour moi et Minmin"), mets uniquement les IDs correspondants.
 - Si la personne parle d'elle-même ("moi", "j'ai"), tu dois assumer que l'auteur est inclus.
-- Pour la date : si une date relative ou absolue est mentionnée (ex: "hier", "le 10/09", "samedi"), calcule la date exacte au format YYYY-MM-DD par rapport à aujourd'hui ({today_str}). Sinon renvoie null.
+- Pour la date : si une date relative ou absolue est mentionnée (ex: "hier", "le 10/09", "samedi"), calcule la date exacte au format YYYY-MM-DD par rapport à aujourd'hui ({today_str}). Sinon renvoie une chaîne vide "".
 
 Tu DOIS répondre UNIQUEMENT par un objet JSON valide respectant strictement ce format :
 {{
@@ -28,7 +28,7 @@ Tu DOIS répondre UNIQUEMENT par un objet JSON valide respectant strictement ce 
   "categorie": "<string: Transport, Restaurant, Studio, Matériel, Divers, etc.>",
   "participants_ids": [<liste des IDs entiers des membres>],
   "is_remboursement": <true si c'est explicitement un remboursement entre membres, sinon false>,
-  "date_transaction": <"YYYY-MM-DD" ou null>
+  "date_transaction": <"YYYY-MM-DD" ou "">
 }}"""
 
     payload = {
@@ -83,7 +83,7 @@ async def _parse_with_gemini(text: str, membres_dict: dict[str, int], today_str:
     - Si le message dit "J'ai payé pour tout le monde" ou ne précise pas de bénéficiaires, mets les IDs de TOUS les membres.
     - Si le message précise des bénéficiaires (ex: "pour moi et Minmin"), mets uniquement les IDs correspondants.
     - Si la personne parle d'elle-même ("moi", "j'ai"), tu dois assumer que l'auteur est inclus.
-    - Pour la date : si une date relative ou absolue est mentionnée (ex: "hier", "le 10/09", "samedi"), calcule la date exacte au format YYYY-MM-DD par rapport à aujourd'hui ({today_str}). Sinon renvoie null.
+    - Pour la date : si une date relative ou absolue est mentionnée (ex: "hier", "le 10/09", "samedi"), calcule la date exacte au format YYYY-MM-DD par rapport à aujourd'hui ({today_str}). Sinon renvoie une chaîne vide "".
     
     Texte à analyser : "{text}"
     """

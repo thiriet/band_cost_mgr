@@ -45,7 +45,7 @@ async def process_text_message(message: dict, db: Session):
     pending_id = str(uuid.uuid4())
     
     # Date réelle de la dépense si précisée (ex: "hier", "le 10/09"), sinon aujourd'hui
-    txn_date = extracted.date_transaction or date.today().isoformat()
+    txn_date = extracted.date_transaction if (extracted.date_transaction and len(extracted.date_transaction) == 10) else date.today().isoformat()
     
     txn_data = {
         "type_transaction": TypeTransactionEnum.DEPENSE.value,

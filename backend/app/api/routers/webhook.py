@@ -18,13 +18,19 @@ async def process_text_message(message: dict, db: Session):
     from_id = str(message["from"]["id"])
     text = message.get("text", "")
     
+    # Détection cold start : si le message date de plus de 10s, prévenir que le serveur se réveillait
+    import time
+    message_time = message.get("date")
+    if message_time and (time.time() - message_time) > 10:
+        await telegram.send_message(chat_id, "⏳ <i>Le serveur sortait de veille, traitement de votre dépense en cours...</i>")
+    
     # Trouver le membre
     auteur = db.query(Membre).filter(Membre.telegram_user_id == from_id).first()
     if not auteur:
         await telegram.send_message(chat_id, "❌ Vous n'êtes pas reconnu comme membre du groupe.")
         return
 
-    # Dictionnaire des membres pour Gemini
+    # Dictionnaire des membres pour le LLM
     membres = db.query(Membre).filter(Membre.is_active == True).all()
     membres_dict = {m.nom: m.id for m in membres}
     
@@ -41,6 +47,12 @@ async def process_text_message(message: dict, db: Session):
         await telegram.send_message(chat_id, "🚫 <b>Refusé :</b> Les remboursements entre membres doivent être saisis via l'interface Web pour garantir l'intégrité de la caisse.")
         return
         
+    # Déterminer le payeur (délégué si nommé dans le texte, ex: 'Britt a payé', sinon l'auteur)
+    if extracted.id_payeur and any(m.id == extracted.id_payeur for m in membres):
+        payeur = next(m for m in membres if m.id == extracted.id_payeur)
+    else:
+        payeur = auteur
+
     # Créer la pending transaction
     pending_id = str(uuid.uuid4())
     
@@ -53,7 +65,7 @@ async def process_text_message(message: dict, db: Session):
         "details": text,
         "montant": extracted.montant,
         "date_transaction": txn_date,
-        "id_payeur": auteur.id,
+        "id_payeur": payeur.id,
         "participants": extracted.participants_ids,
         "source": SourceEnum.TELEGRAM.value
     }
@@ -71,7 +83,10 @@ async def process_text_message(message: dict, db: Session):
     
     summary = f"<b>Nouvelle Dépense :</b>\n"
     summary += f"💰 Montant : {extracted.montant} €\n"
-    summary += f"📅 Date : {txn_date}\n"
+    summary += f"💳 Payé par : <b>{payeur.nom}</b>"
+    if payeur.id != auteur.id:
+        summary += f" <i>(saisie par {auteur.nom})</i>"
+    summary += f"\n📅 Date : {txn_date}\n"
     summary += f"🏷️ Catégorie : {extracted.categorie}\n"
     summary += f"👥 Pour : {', '.join(part_names)}\n\n"
     summary += f"Confirmez-vous ?"

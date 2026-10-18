@@ -17,9 +17,10 @@ Voici le dictionnaire des membres actuels du groupe (Nom -> ID) :
 {json.dumps(membres_dict, ensure_ascii=False)}
 
 Règles :
-- Si le message dit "J'ai payé pour tout le monde" ou ne précise pas de bénéficiaires, mets les IDs de TOUS les membres.
+- Pour le payeur : Si le message mentionne explicitement qui a payé ou avancé la dépense (ex: "Britt a payé", "JB a avancé 20€"), mets l'ID de ce membre dans id_payeur. Si l'auteur parle de lui-même ("J'ai payé", "moi") ou si non précisé, mets 0.
+- Pour les bénéficiaires : Si le message dit "pour tout le monde" ou ne précise pas, mets les IDs de TOUS les membres.
 - Si le message précise des bénéficiaires (ex: "pour moi et Minmin"), mets uniquement les IDs correspondants.
-- Si la personne parle d'elle-même ("moi", "j'ai"), tu dois assumer que l'auteur est inclus.
+- Si la personne parle d'elle-même ("moi", "j'ai"), tu dois assumer que l'auteur est inclus dans les bénéficiaires.
 - Pour la date : si une date relative ou absolue est mentionnée (ex: "hier", "le 10/09", "samedi"), calcule la date exacte au format YYYY-MM-DD par rapport à aujourd'hui ({today_str}). Sinon renvoie une chaîne vide "".
 
 Tu DOIS répondre UNIQUEMENT par un objet JSON valide respectant strictement ce format :
@@ -27,6 +28,7 @@ Tu DOIS répondre UNIQUEMENT par un objet JSON valide respectant strictement ce 
   "montant": <float positif>,
   "categorie": "<string: Transport, Restaurant, Studio, Matériel, Divers, etc.>",
   "participants_ids": [<liste des IDs entiers des membres>],
+  "id_payeur": <int, ID du membre ayant payé ou 0>,
   "is_remboursement": <true si c'est explicitement un remboursement entre membres, sinon false>,
   "date_transaction": <"YYYY-MM-DD" ou "">
 }}"""
@@ -80,9 +82,10 @@ async def _parse_with_gemini(text: str, membres_dict: dict[str, int], today_str:
     {json.dumps(membres_dict, ensure_ascii=False)}
     
     Règles :
-    - Si le message dit "J'ai payé pour tout le monde" ou ne précise pas de bénéficiaires, mets les IDs de TOUS les membres.
+    - Pour le payeur : Si le message mentionne explicitement qui a payé ou avancé la dépense (ex: "Britt a payé", "JB a avancé 20€"), mets l'ID de ce membre dans id_payeur. Si l'auteur parle de lui-même ("J'ai payé", "moi") ou si non précisé, mets 0.
+    - Pour les bénéficiaires : Si le message dit "pour tout le monde" ou ne précise pas, mets les IDs de TOUS les membres.
     - Si le message précise des bénéficiaires (ex: "pour moi et Minmin"), mets uniquement les IDs correspondants.
-    - Si la personne parle d'elle-même ("moi", "j'ai"), tu dois assumer que l'auteur est inclus.
+    - Si la personne parle d'elle-même ("moi", "j'ai"), tu dois assumer que l'auteur est inclus dans les bénéficiaires.
     - Pour la date : si une date relative ou absolue est mentionnée (ex: "hier", "le 10/09", "samedi"), calcule la date exacte au format YYYY-MM-DD par rapport à aujourd'hui ({today_str}). Sinon renvoie une chaîne vide "".
     
     Texte à analyser : "{text}"

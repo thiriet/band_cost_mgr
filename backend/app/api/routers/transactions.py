@@ -114,3 +114,20 @@ def get_transactions(
         result.append(t_dict)
         
     return result
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_transaction(
+    id: int,
+    db: Session = Depends(deps.get_db),
+    current_user: Membre = Depends(deps.get_current_active_user)
+) -> None:
+    """
+    Supprimer une transaction erronée (recalcule immédiatement les soldes).
+    """
+    txn = db.query(Transaction).filter(Transaction.id == id).first()
+    if not txn:
+        raise HTTPException(status_code=404, detail="Transaction introuvable")
+        
+    db.delete(txn)
+    db.commit()
+    return None

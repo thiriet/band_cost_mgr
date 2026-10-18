@@ -42,6 +42,21 @@ const formatParticipants = (participants) => {
   if (participants.length === 4) return 'Tout le groupe (4)';
   return participants.join(', ');
 };
+
+const handleDelete = async (id, details) => {
+  const confirmation = window.confirm(
+    `Êtes-vous sûr de vouloir supprimer l'opération "${details || 'Sans titre'}" ?\n\nCette action recalculera immédiatement tous les soldes.`
+  );
+  if (!confirmation) return;
+
+  try {
+    await api.delete(`/transactions/${id}`);
+    await fetchTransactions();
+  } catch (err) {
+    console.error("Erreur suppression transaction", err);
+    alert("Impossible de supprimer cette transaction.");
+  }
+};
 </script>
 
 <template>
@@ -109,6 +124,7 @@ const formatParticipants = (participants) => {
                 <th scope="col" class="px-6 py-3 font-medium">Payé par</th>
                 <th scope="col" class="px-6 py-3 font-medium">Pour</th>
                 <th scope="col" class="px-6 py-3 font-medium text-right">Montant</th>
+                <th scope="col" class="px-6 py-3 font-medium text-right">Action</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 bg-white">
@@ -157,6 +173,17 @@ const formatParticipants = (participants) => {
                   <span :class="t.type_transaction === 'REVENU' ? 'text-green-600' : 'text-gray-900'">
                     {{ t.type_transaction === 'REVENU' ? '+' : '' }}{{ t.montant }} €
                   </span>
+                </td>
+
+                <!-- Suppression -->
+                <td class="px-6 py-4 whitespace-nowrap text-right text-xs">
+                  <button @click="handleDelete(t.id, t.details)"
+                          title="Supprimer cette opération"
+                          class="text-gray-400 hover:text-red-600 p-1.5 rounded-md hover:bg-red-50 transition-colors">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
                 </td>
               </tr>
             </tbody>

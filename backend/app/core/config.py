@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     
     # OpenRouter / Nemotron
     OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
-    OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "nvidia/llama-3.1-nemotron-70b-instruct")
+    OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3.5-lightning")
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8', case_sensitive=True)
 

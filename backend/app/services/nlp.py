@@ -35,17 +35,23 @@ Tu DOIS répondre UNIQUEMENT par un objet JSON valide respectant strictement ce 
 
     # Modèles de secours sur OpenRouter si le modèle principal n'a pas de serveur disponible
     primary_model = settings.OPENROUTER_MODEL
-    fallback_models = [primary_model]
-    if not primary_model.endswith(":free"):
-        fallback_models.append(f"{primary_model}:free")
-    fallback_models.extend([
-        "meta-llama/llama-3.3-70b-instruct:free",
-        "meta-llama/llama-3.1-8b-instruct:free"
-    ])
+    # Si le modèle configuré est l'ancien slug obsolète de 2024, le mapper vers la version active
+    if "llama-3.1-nemotron" in primary_model:
+        primary_model = "nvidia/nemotron-3.5-lightning"
+
+    fallback_models = [
+        primary_model,
+        f"{primary_model}:free" if not primary_model.endswith(":free") else primary_model,
+        "nvidia/nemotron-3.5-lightning:free",
+        "nvidia/nemotron-3.5-super-vl:free",
+        "nvidia/nemotron-3-super-120b-a12b:free",
+        "meta-llama/llama-3.3-70b-instruct:free"
+    ]
+    unique_fallbacks = list(dict.fromkeys(fallback_models))
 
     payload = {
         "model": primary_model,
-        "models": fallback_models,
+        "models": unique_fallbacks,
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": text}
@@ -101,17 +107,25 @@ async def _parse_with_gemini(text: str, membres_dict: dict[str, int], today_str:
     Texte à analyser : "{text}"
     """
     
-    response = await client.aio.models.generate_content(
-        model='gemini-1.5-flash',
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            response_schema=ExtractedTransaction,
-            temperature=0.0
-        ),
-    )
-    
-    return ExtractedTransaction.model_validate_json(response.text)
+    gemini_models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-002", "gemini-1.5-flash"]
+    last_err = None
+    for model_name in gemini_models:
+        try:
+            response = await client.aio.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=ExtractedTransaction,
+                    temperature=0.0
+                ),
+            )
+            return ExtractedTransaction.model_validate_json(response.text)
+        except Exception as err:
+            last_err = err
+            print(f"[GEMINI MODEL {model_name} FAILED] {err}")
+            continue
+    raise last_err
 
 async def parse_expense_text(text: str, membres_dict: dict[str, int]) -> ExtractedTransaction:
     """

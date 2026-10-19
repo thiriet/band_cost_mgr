@@ -33,14 +33,24 @@ Tu DOIS répondre UNIQUEMENT par un objet JSON valide respectant strictement ce 
   "date_transaction": <"YYYY-MM-DD" ou "">
 }}"""
 
+    # Modèles de secours sur OpenRouter si le modèle principal n'a pas de serveur disponible
+    primary_model = settings.OPENROUTER_MODEL
+    fallback_models = [primary_model]
+    if not primary_model.endswith(":free"):
+        fallback_models.append(f"{primary_model}:free")
+    fallback_models.extend([
+        "meta-llama/llama-3.3-70b-instruct:free",
+        "meta-llama/llama-3.1-8b-instruct:free"
+    ])
+
     payload = {
-        "model": settings.OPENROUTER_MODEL,
+        "model": primary_model,
+        "models": fallback_models,
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": text}
         ],
-        "temperature": 0.0,
-        "response_format": {"type": "json_object"}
+        "temperature": 0.0
     }
     
     headers = {
@@ -110,7 +120,13 @@ async def parse_expense_text(text: str, membres_dict: dict[str, int]) -> Extract
     today_str = date.today().isoformat()
     
     if settings.OPENROUTER_API_KEY:
-        return await _parse_with_openrouter(text, membres_dict, today_str)
+        try:
+            return await _parse_with_openrouter(text, membres_dict, today_str)
+        except Exception as e:
+            print(f"[OPENROUTER FAILED, FALLING BACK TO GEMINI] {e}")
+            if settings.GEMINI_API_KEY:
+                return await _parse_with_gemini(text, membres_dict, today_str)
+            raise
     elif settings.GEMINI_API_KEY:
         return await _parse_with_gemini(text, membres_dict, today_str)
     else:

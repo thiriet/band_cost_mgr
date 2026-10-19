@@ -104,7 +104,7 @@ async def _parse_with_gemini(text: str, membres_dict: dict[str, int], today_str:
     Texte à analyser : "{text}"
     """
     
-    gemini_models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-002", "gemini-1.5-flash"]
+    gemini_models = ["gemini-2.0-flash", "gemini-2.0-flash-exp", "gemini-1.5-flash-8b", "gemini-1.5-flash-002", "gemini-2.5-flash"]
     last_err = None
     for model_name in gemini_models:
         try:
@@ -130,15 +130,21 @@ async def parse_expense_text(text: str, membres_dict: dict[str, int]) -> Extract
     """
     today_str = date.today().isoformat()
     
-    if settings.OPENROUTER_API_KEY:
+    has_openrouter = bool(settings.OPENROUTER_API_KEY and settings.OPENROUTER_API_KEY.strip())
+    has_gemini = bool(settings.GEMINI_API_KEY and settings.GEMINI_API_KEY.strip())
+    
+    if has_openrouter:
         try:
             return await _parse_with_openrouter(text, membres_dict, today_str)
         except Exception as e:
-            print(f"[OPENROUTER FAILED, FALLING BACK TO GEMINI] {e}")
-            if settings.GEMINI_API_KEY:
-                return await _parse_with_gemini(text, membres_dict, today_str)
-            raise
-    elif settings.GEMINI_API_KEY:
+            print(f"[OPENROUTER FAILED] {e}. Bascule sur Gemini...")
+            if has_gemini:
+                try:
+                    return await _parse_with_gemini(text, membres_dict, today_str)
+                except Exception as g_err:
+                    raise ValueError(f"OpenRouter: {e} | Secours Gemini: {g_err}")
+            raise ValueError(f"OpenRouter: {e}")
+    elif has_gemini:
         return await _parse_with_gemini(text, membres_dict, today_str)
     else:
-        raise ValueError("Aucune clé API configurée (ni OPENROUTER_API_KEY ni GEMINI_API_KEY)")
+        raise ValueError("Aucune clé API configurée sur le serveur Render (OPENROUTER_API_KEY et GEMINI_API_KEY sont absentes).")

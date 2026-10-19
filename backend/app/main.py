@@ -23,7 +23,13 @@ def read_root():
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy"}
+    return {
+        "status": "healthy",
+        "version": "1.0.3",
+        "openrouter_configured": bool(settings.OPENROUTER_API_KEY and settings.OPENROUTER_API_KEY.strip()),
+        "openrouter_model": settings.OPENROUTER_MODEL,
+        "gemini_configured": bool(settings.GEMINI_API_KEY and settings.GEMINI_API_KEY.strip())
+    }
 
 from app.api.api import api_router
 app.include_router(api_router, prefix=settings.API_V1_STR)

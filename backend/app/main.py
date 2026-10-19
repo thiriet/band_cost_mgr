@@ -25,7 +25,7 @@ def read_root():
 def health_check():
     return {
         "status": "healthy",
-        "version": "1.0.3",
+        "version": "1.0.4",
         "openrouter_configured": bool(settings.OPENROUTER_API_KEY and settings.OPENROUTER_API_KEY.strip()),
         "openrouter_model": settings.OPENROUTER_MODEL,
         "gemini_configured": bool(settings.GEMINI_API_KEY and settings.GEMINI_API_KEY.strip())

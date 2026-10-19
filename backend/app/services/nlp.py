@@ -41,10 +41,9 @@ Tu DOIS répondre UNIQUEMENT par un objet JSON valide respectant strictement ce 
     fallback_models = [
         primary_model,
         "nvidia/nemotron-3.5-super-vl",
-        "nvidia/nemotron-3.5-lightning:free",
-        "meta-llama/llama-3.3-70b-instruct:free"
+        "nvidia/nemotron-3.5-lightning:free"
     ]
-    unique_fallbacks = list(dict.fromkeys(fallback_models))
+    unique_fallbacks = list(dict.fromkeys(fallback_models))[:3]
 
     payload = {
         "model": primary_model,
@@ -57,7 +56,7 @@ Tu DOIS répondre UNIQUEMENT par un objet JSON valide respectant strictement ce 
     }
     
     headers = {
-        "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
+        "Authorization": f"Bearer {settings.OPENROUTER_API_KEY.strip()}",
         "HTTP-Referer": "https://hongre-app.web.app",
         "X-Title": "Hongre Cost Manager",
         "Content-Type": "application/json"
@@ -104,7 +103,7 @@ async def _parse_with_gemini(text: str, membres_dict: dict[str, int], today_str:
     Texte à analyser : "{text}"
     """
     
-    gemini_models = ["gemini-2.0-flash", "gemini-2.0-flash-exp", "gemini-1.5-flash-8b", "gemini-1.5-flash-002", "gemini-2.5-flash"]
+    gemini_models = ["gemini-3.8-flash", "gemini-2.0-flash", "gemini-1.5-flash-002"]
     last_err = None
     for model_name in gemini_models:
         try:

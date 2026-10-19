@@ -27,8 +27,52 @@ async def process_text_message(message: dict, db: Session):
     # Trouver le membre
     auteur = db.query(Membre).filter(Membre.telegram_user_id == from_id).first()
     if not auteur:
-        await telegram.send_message(chat_id, "❌ Vous n'êtes pas reconnu comme membre du groupe.")
+        await telegram.send_message(
+            chat_id,
+            f"❌ <b>Accès non configuré</b>\n\n"
+            f"Votre compte Telegram n'est pas encore associé à un membre du groupe Hongre.\n\n"
+            f"Votre identifiant Telegram est : <code>{from_id}</code>\n"
+            f"<i>(Touchez le numéro pour le copier)</i>\n\n"
+            f"Transmettez ce numéro à l'administrateur pour activer votre accès !"
+        )
         return
+
+    clean_text = text.strip()
+    if clean_text.lower() in ["/start", "/help", "/aide"]:
+        await telegram.send_message(
+            chat_id,
+            f"👋 Bonjour <b>{auteur.nom}</b> !\n\n"
+            f"Envoyez simplement vos dépenses en langage naturel dans ce chat.\n\n"
+            f"<b>Exemples :</b>\n"
+            f"• <i>« 35€ cordes de basse »</i>\n"
+            f"• <i>« 120€ studio pour tout le groupe »</i>\n"
+            f"• <i>« Britt a payé 26€ en pizza pour tout le groupe »</i>\n\n"
+            f"📊 <b>Dashboard Web :</b> https://hongre-app.web.app"
+        )
+        return
+
+    if clean_text.startswith("/lier") or clean_text.startswith("/associer"):
+        parts = clean_text.split()
+        if len(parts) == 3:
+            target_name, target_tg_id = parts[1], parts[2]
+            target_member = db.query(Membre).filter(Membre.nom.ilike(target_name)).first()
+            if not target_member:
+                await telegram.send_message(chat_id, f"❌ Membre '{target_name}' introuvable.")
+                return
+            target_member.telegram_user_id = target_tg_id
+            db.commit()
+            await telegram.send_message(
+                chat_id,
+                f"✅ <b>{target_member.nom}</b> est désormais associé à l'ID Telegram <code>{target_tg_id}</code> !"
+            )
+            return
+        else:
+            await telegram.send_message(
+                chat_id,
+                "ℹ️ <b>Usage :</b> <code>/lier [NomDuMembre] [TelegramID]</code>\n"
+                "<i>Exemple :</i> <code>/lier Minmin 123456789</code>"
+            )
+            return
 
     # Dictionnaire des membres pour le LLM
     membres = db.query(Membre).filter(Membre.is_active == True).all()

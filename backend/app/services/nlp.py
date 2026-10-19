@@ -33,18 +33,15 @@ Tu DOIS répondre UNIQUEMENT par un objet JSON valide respectant strictement ce 
   "date_transaction": <"YYYY-MM-DD" ou "">
 }}"""
 
-    # Modèles de secours sur OpenRouter si le modèle principal n'a pas de serveur disponible
-    primary_model = settings.OPENROUTER_MODEL
-    # Si le modèle configuré est l'ancien slug obsolète de 2024, le mapper vers la version active
+    # Modèle principal demandé : nvidia/nemotron-3.5-super-vl:free
+    primary_model = settings.OPENROUTER_MODEL or "nvidia/nemotron-3.5-super-vl:free"
     if "llama-3.1-nemotron" in primary_model:
-        primary_model = "nvidia/nemotron-3.5-lightning"
+        primary_model = "nvidia/nemotron-3.5-super-vl:free"
 
     fallback_models = [
         primary_model,
-        f"{primary_model}:free" if not primary_model.endswith(":free") else primary_model,
+        "nvidia/nemotron-3.5-super-vl",
         "nvidia/nemotron-3.5-lightning:free",
-        "nvidia/nemotron-3.5-super-vl:free",
-        "nvidia/nemotron-3-super-120b-a12b:free",
         "meta-llama/llama-3.3-70b-instruct:free"
     ]
     unique_fallbacks = list(dict.fromkeys(fallback_models))
